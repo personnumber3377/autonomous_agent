@@ -248,7 +248,7 @@ def main_loop():
 
     last_output = ""
 
-    load_memory(conversation_history)
+    load_memory()
 
     while True:
         try:
