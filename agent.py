@@ -216,7 +216,7 @@ DO NOT ASSUME ANYTHING!!!!
 
 VERIFY BEHAVIOUR OF EACH FILE AND SCRIPT BEFORE USING THEM!!!!!!!!
 
-
+In addition to the current state, you will also be served a history of the last couple of commands which you have executed as further context
 """
 
 # -------------------- GPT CALL ----------------------
@@ -295,7 +295,7 @@ def main_loop():
             raw = send_to_chatgpt(state)
 
             # ---- Memory: store assistant message ----
-            conversation_history.append({"role": "assistant", "content": raw})
+            # conversation_history.append({"role": "assistant", "content": raw})
 
             # ---- Parse output ----
             try:
@@ -314,6 +314,9 @@ def main_loop():
                 continue
 
             log("Executing this action: " + str(data["actions"]))
+
+            conversation_history.append({"previous_command" : data["actions"]})
+            
 
             # ---- Execute ----
             res = execute_actions(data["actions"])
