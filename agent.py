@@ -21,9 +21,11 @@ ALLOWED_ACTIONS = {
 }
 
 def log(string):
-    fh = open("~/log.txt", "a+")
+    '''
+    fh = open("/home/oof/log.txt", "a+")
     fh.write(string+"\n")
     fh.close()
+    '''
     print(string)
     return
 
