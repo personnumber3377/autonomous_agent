@@ -20,6 +20,13 @@ ALLOWED_ACTIONS = {
     "list_dir",
 }
 
+def log(string):
+    fh = open("~/log.txt", "a+")
+    fh.write(string+"\n")
+    fh.close()
+    print(string)
+    return
+
 # -------------- HELPER FUNCTIONS ---------------------
 
 def safe_read(path):
@@ -214,7 +221,7 @@ def main_loop():
                 data = json.loads(raw)
             except Exception as e:
                 print("Invalid JSON from model:", raw)
-                last_output = "You outputted invalid json which resulted in this exception: "+str(e)" please try again."
+                last_output = "You outputted invalid json which resulted in this exception: "+str(e)+" please try again."
                 time.sleep(10)
                 continue
 
@@ -222,6 +229,9 @@ def main_loop():
                 print("Model gave no actions.")
                 time.sleep(5)
                 continue
+
+
+            log("Executing this action: "+str(data["actions"]))
 
             res = execute_actions(data["actions"])
             last_output = json.dumps(res, indent=2)
