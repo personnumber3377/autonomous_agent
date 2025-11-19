@@ -287,7 +287,7 @@ def main_loop():
             state = {
                 "cwd": os.getcwd(),
                 "dir": serialize_dir(),
-                "last_output": last_output[-MAX_OUTPUT:]
+                "last_output": last_output[-MAX_OUTPUT:],
                 "last_commands": prev_commands,
                 "last_result": res
             }
