@@ -8,7 +8,7 @@ client = OpenAI(api_key=API_KEY)
 # -------------------- CONFIG ------------------------
 
 MAX_FILE_SIZE = 200_000
-MAX_STDOUT_LOG = 100_000
+MAX_STDOUT_LOG = 1000
 COMMAND_TIMEOUT = 30
 SLEEP_BETWEEN_ITERS = 5
 MAX_MEMORY_TURNS = 10000  # <-- NEW: keep last 10 messages
@@ -189,6 +189,8 @@ The current issue is that if you run ./fuzz.sh , then it runs out of memory for 
 Good luck on your journey!
 
 (This program is saved in a file called "~/agent.py" and you can observe it as you wish, but do not modify it.)
+
+The output of each of the commands are limited to first 10k chars. Please keep this in mind...
 """
 
 # -------------------- GPT CALL ----------------------
@@ -241,7 +243,7 @@ def execute_actions(actions):
 
 # -------------------- MAIN LOOP ----------------------
 
-MAX_OUTPUT = 10000
+MAX_OUTPUT = 1000
 
 def main_loop():
     global conversation_history
