@@ -149,6 +149,8 @@ Please use creativity and whatever methods you see fit. This is just guidance.
 
 !!!!!! Remember to verify your findings after you find a potential BUG !!!!!!
 
+The current issue is that if you run ./fuzz.sh , then it runs out of memory for some reason. This is probably because the larger pdf files leak memory somewhere. I am not interested in oom bugs, but only in memory corruption.
+
 Good luck on your journey!
 
 (This program is saved in a file called "~/agent.py" and you can observe it as you wish, but do not modify it.)
