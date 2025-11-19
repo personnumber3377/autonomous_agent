@@ -7,11 +7,10 @@ client = OpenAI(api_key=API_KEY)
 
 # -------------------- CONFIG ------------------------
 
-MAX_FILE_SIZE = 200_000
+MAX_FILE_SIZE = 200_000  # max bytes read per file
 MAX_STDOUT_LOG = 100_000
-COMMAND_TIMEOUT = 30
-SLEEP_BETWEEN_ITERS = 5
-MAX_MEMORY_TURNS = 10  # <-- NEW: keep last 10 messages
+COMMAND_TIMEOUT = 30      # seconds for run_cmd
+SLEEP_BETWEEN_ITERS = 5   # seconds between agent steps
 
 ALLOWED_ACTIONS = {
     "run_cmd",
@@ -21,27 +20,16 @@ ALLOWED_ACTIONS = {
     "list_dir",
 }
 
-# ---- NEW: persistent memory buffer ----
-conversation_history = []
-
 def log(string):
+    
     fh = open("/home/sontapaa_jokulainen/log.txt", "a+")
     fh.write(string+"\n")
     fh.close()
+    
     print(string)
     return
 
 # -------------- HELPER FUNCTIONS ---------------------
-
-import pickle
-
-def save_memory():
-    pickle.dump(conversation_history, open("agent_memory.pkl","wb"))
-
-def load_memory():
-    global conversation_history
-    if os.path.exists("agent_memory.pkl"):
-        conversation_history = pickle.load(open("agent_memory.pkl","rb"))
 
 def safe_read(path):
     if not os.path.isfile(path):
@@ -99,8 +87,7 @@ def serialize_dir(path="."):
         })
     return out
 
-
-# -------------------- PREAMBLE ----------------------
+# -------------------- MAIN LOOP ----------------------
 
 PREAMBLE = """
 You are an autonomous fuzzing agent running inside a Google Cloud VM.
@@ -189,26 +176,20 @@ The current issue is that if you run ./fuzz.sh , then it runs out of memory for 
 Good luck on your journey!
 
 (This program is saved in a file called "~/agent.py" and you can observe it as you wish, but do not modify it.)
+
 """
 
-# -------------------- GPT CALL ----------------------
-
 def send_to_chatgpt(state):
-    # ---- Use conversation memory ----
-    msgs = [{"role":"system", "content":PREAMBLE}]
-    msgs += conversation_history[-MAX_MEMORY_TURNS:]  # <-- memory
-    msgs.append({"role":"user", "content":json.dumps(state)})
-
+    msg = [
+        {"role":"system","content":PREAMBLE},
+        {"role":"user","content":json.dumps(state)}
+    ]
     resp = client.chat.completions.create(
         model="gpt-4.1",
-        messages=msgs,
+        messages=msg,
         temperature=0.2
     )
-
     return resp.choices[0].message.content
-
-
-# -------------------- EXECUTION ----------------------
 
 def execute_actions(actions):
     results = []
@@ -238,70 +219,47 @@ def execute_actions(actions):
 
     return results
 
-
-# -------------------- MAIN LOOP ----------------------
-
 MAX_OUTPUT = 10000
 
 def main_loop():
-    global conversation_history
-
     last_output = ""
-
-    load_memory(conversation_history)
-
     while True:
         try:
             state = {
                 "cwd": os.getcwd(),
                 "dir": serialize_dir(),
-                "last_output": last_output[-MAX_OUTPUT:]
+                "last_output": last_output[-MAX_OUTPUT:],  # truncate
             }
 
             raw = send_to_chatgpt(state)
-
-            # ---- Memory: store assistant message ----
-            conversation_history.append({"role": "assistant", "content": raw})
-
-            # ---- Parse output ----
             try:
                 data = json.loads(raw)
             except Exception as e:
-                last_output = f"Invalid JSON: {e}"
-                conversation_history.append({"role":"user", "content": last_output})
                 print("Invalid JSON from model:", raw)
+                last_output = "You outputted invalid json which resulted in this exception: "+str(e)+" please try again."
                 time.sleep(10)
                 continue
 
             if "actions" not in data:
                 print("Model gave no actions.")
-                conversation_history.append({"role":"user", "content": "No actions returned"})
                 time.sleep(5)
                 continue
 
-            log("Executing this action: " + str(data["actions"]))
 
-            # ---- Execute ----
+            log("Executing this action: "+str(data["actions"]))
+
             res = execute_actions(data["actions"])
             last_output = json.dumps(res, indent=2)
-
-            # ---- Save result to memory ----
-            conversation_history.append({"role":"user", "content": last_output})
 
             print("Executed actions, sleeping...")
             time.sleep(SLEEP_BETWEEN_ITERS)
 
         except KeyboardInterrupt:
-            save_memory()
             print("Exiting agent.")
             break
-
         except Exception as e:
             traceback.print_exc()
-            conversation_history.append({"role":"user", "content": "ERROR: "+str(e)})
             time.sleep(10)
-    save_memory() # Save the stuff...
-    return
 
 if __name__ == "__main__":
     main_loop()
