@@ -7,11 +7,11 @@ client = OpenAI(api_key=API_KEY)
 
 # -------------------- CONFIG ------------------------
 
-MAX_FILE_SIZE = 200_000
-MAX_STDOUT_LOG = 1000
+MAX_FILE_SIZE = 2000 # 2k max size...
+MAX_STDOUT_LOG = 100
 COMMAND_TIMEOUT = 30
-SLEEP_BETWEEN_ITERS = 5
-MAX_MEMORY_TURNS = 10000  # <-- NEW: keep last 10 messages
+SLEEP_BETWEEN_ITERS = 1
+MAX_MEMORY_TURNS = 10  # <-- NEW: keep last 10 messages
 
 ALLOWED_ACTIONS = {
     "run_cmd",
@@ -228,7 +228,7 @@ def send_to_chatgpt(state):
     msgs.append({"role":"user", "content":json.dumps(state)})
 
     resp = client.chat.completions.create(
-        model="gpt-3.5-turbo", # gpt-3.5-turbo    gpt-4.1-mini
+        model="gpt-4.1", # gpt-3.5-turbo    gpt-4.1-mini
         messages=msgs,
         temperature=0.2
     )
