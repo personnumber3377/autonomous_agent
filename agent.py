@@ -21,11 +21,11 @@ ALLOWED_ACTIONS = {
 }
 
 def log(string):
-    '''
-    fh = open("/home/oof/log.txt", "a+")
+    
+    fh = open("/home/sontapaa_jokulainen/log.txt", "a+")
     fh.write(string+"\n")
     fh.close()
-    '''
+    
     print(string)
     return
 
@@ -125,6 +125,11 @@ You must propose concrete actions as a JSON object:
 DO NOT return anything other than the JSON.
 Never return explanations or prose.
 
+YOU MUST PROVIDE A CRASHING FILE OR AN EXPLANATION OF THE VULNERABILITY!!!!!!!!
+
+IF YOU LIE OR HALLUCINATE A VULNERABILITY, YOU WILL BURN IN HELL!!!!!
+
+TO VERIFY THIS, ALL OF YOUR COMMANDS ARE MONITORED TO A LOG FILE
 
 -- NOT SO IMPORTANT STUFF AND ADDITIONAL CONTEXT --
 
