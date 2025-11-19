@@ -281,7 +281,7 @@ def main_loop():
     load_memory()
 
     prev_commands = None
-
+    res = None
     while True:
         try:
             state = {
