@@ -227,6 +227,8 @@ def send_to_chatgpt(state):
     msgs += conversation_history[-MAX_MEMORY_TURNS:]  # <-- memory
     msgs.append({"role":"user", "content":json.dumps(state)})
 
+    log("Sending these messages to chatgpt: "+str(msgs))
+
     resp = client.chat.completions.create(
         model="gpt-4.1", # gpt-3.5-turbo    gpt-4.1-mini
         messages=msgs,
@@ -278,12 +280,16 @@ def main_loop():
 
     load_memory()
 
+    prev_command = None
+
     while True:
         try:
             state = {
                 "cwd": os.getcwd(),
                 "dir": serialize_dir(),
                 "last_output": last_output[-MAX_OUTPUT:]
+                "last_commands": prev_commands,
+                "last_result": res
             }
 
             raw = send_to_chatgpt(state)
@@ -296,14 +302,14 @@ def main_loop():
                 data = json.loads(raw)
             except Exception as e:
                 last_output = f"Invalid JSON: {e}"
-                conversation_history.append({"role":"user", "content": last_output})
+                # conversation_history.append({"role":"user", "content": last_output})
                 print("Invalid JSON from model:", raw)
                 time.sleep(10)
                 continue
 
             if "actions" not in data:
                 print("Model gave no actions.")
-                conversation_history.append({"role":"user", "content": "No actions returned"})
+                # conversation_history.append({"role":"user", "content": "No actions returned"})
                 time.sleep(5)
                 continue
 
@@ -311,10 +317,11 @@ def main_loop():
 
             # ---- Execute ----
             res = execute_actions(data["actions"])
+            prev_commands = data["actions"]
             last_output = json.dumps(res, indent=2)
 
             # ---- Save result to memory ----
-            conversation_history.append({"role":"user", "content": last_output})
+            # conversation_history.append({"role":"user", "content": last_output})
 
             print("Executed actions, sleeping...")
             time.sleep(SLEEP_BETWEEN_ITERS)
