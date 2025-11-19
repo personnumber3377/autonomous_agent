@@ -191,6 +191,32 @@ Good luck on your journey!
 (This program is saved in a file called "~/agent.py" and you can observe it as you wish, but do not modify it.)
 
 The output of each of the commands are limited to first 10k chars. Please keep this in mind...
+
+Remember to check the contents of files before executing them!!!!!!!!!!!
+
+For example the fuzz.sh file has the following content: ```
+(venv) sontapaa_jokulainen@theimage-new:~$ cat pdf_fuzz/fuzz.sh 
+#!/bin/sh
+
+cp /home/sontapaa_jokulainen/new_pdf_mutator/pdfium/newmutator.py ./mutator.py
+cp /home/sontapaa_jokulainen/new_pdf_mutator/pdfium/*.py .
+cp /home/sontapaa_jokulainen/new_pdf_mutator/resources.pkl .
+export ASAN_OPTIONS=alloc_dealloc_mismatch=0:allocator_may_return_null=1:halt_on_error=0
+# pdf_corpus
+# ASAN_OPTIONS=alloc_dealloc_mismatch=0:allocator_may_return_null=1:halt_on_error=1:abort_on_error=1 SLOT_INDEX=1 LIBFUZZER_PYTHON_MODULE=daemon PYTHONPATH=. ./pdfium_fuzzer -fork=1 -ignore_crashes=1 -jobs=1 -dict=pdfium_fuzzer.dict -timeout=10 -rss_limit_mb=0 ./smallcorpus/ # ./pdf_corpus/
+
+
+ASAN_OPTIONS=alloc_dealloc_mismatch=0:allocator_may_return_null=1:halt_on_error=1:abort_on_error=1 SLOT_INDEX=1 LIBFUZZER_PYTHON_MODULE=daemon PYTHONPATH=. ./pdfium_fuzzer -fork=1 -ignore_crashes=1 -jobs=16 -dict=pdfium_fuzzer.dict -timeout=10 -rss_limit_mb=2000 ./pdf_corpus/
+
+
+# ASAN_OPTIONS=alloc_dealloc_mismatch=0:allocator_may_return_null=1:halt_on_error=1:abort_on_error=1 LIBFUZZER_PYTHON_MODULE=daemon PYTHONPATH=. ./pdfium_fuzzer -dict=pdfium_fuzzer.dict -timeout=10 -rss_limit_mb=0 ./smallcorpus/ # ./pdf_corpus/
+```
+
+DO NOT ASSUME ANYTHING!!!!
+
+VERIFY BEHAVIOUR OF EACH FILE AND SCRIPT BEFORE USING THEM!!!!!!!!
+
+
 """
 
 # -------------------- GPT CALL ----------------------
@@ -202,7 +228,7 @@ def send_to_chatgpt(state):
     msgs.append({"role":"user", "content":json.dumps(state)})
 
     resp = client.chat.completions.create(
-        model="gpt-4.1",
+        model="gpt-4.1-mini",
         messages=msgs,
         temperature=0.2
     )
