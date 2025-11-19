@@ -11,7 +11,7 @@ MAX_FILE_SIZE = 200_000
 MAX_STDOUT_LOG = 100_000
 COMMAND_TIMEOUT = 30
 SLEEP_BETWEEN_ITERS = 5
-MAX_MEMORY_TURNS = 10  # <-- NEW: keep last 10 messages
+MAX_MEMORY_TURNS = 10000  # <-- NEW: keep last 10 messages
 
 ALLOWED_ACTIONS = {
     "run_cmd",
