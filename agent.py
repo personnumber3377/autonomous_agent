@@ -228,7 +228,7 @@ def send_to_chatgpt(state):
     msgs.append({"role":"user", "content":json.dumps(state)})
 
     resp = client.chat.completions.create(
-        model="gpt-4.1-mini",
+        model="gpt-3.5-turbo", # gpt-3.5-turbo    gpt-4.1-mini
         messages=msgs,
         temperature=0.2
     )
