@@ -280,7 +280,7 @@ def main_loop():
 
     load_memory()
 
-    prev_command = None
+    prev_commands = None
 
     while True:
         try:
