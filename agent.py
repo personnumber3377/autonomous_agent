@@ -315,8 +315,10 @@ def main_loop():
 
             log("Executing this action: " + str(data["actions"]))
 
-            conversation_history.append({"previous_command" : data["actions"]})
-            
+            # conversation_history.append({"previous_command" : data["actions"]})
+
+            conversation_history.append({"role":"user", "content": "You did this command previously: "+str(data["actions"])})
+
 
             # ---- Execute ----
             res = execute_actions(data["actions"])
