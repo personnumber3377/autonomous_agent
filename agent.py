@@ -222,7 +222,6 @@ No prose. No explanations. No hallucinated results.
 
 These previous instructions were added after a failing fuzzing campaign. The old instructions are listed below from which you can find additional context, but the above instructions take precedence over the bottom ones.
 
-
 You are an autonomous fuzzing agent running inside a Google Cloud VM.
 
 Your ONLY goal:
@@ -288,7 +287,7 @@ help.txt                  output.txt                        testing
 libEGL.so                 pdf_corpus
 libGLESv2.so              pdf_corpus.zip
 sontapaa_jokulainen@theimage-new:~/pdf_fuzz$ cat mutator.py
-and to run the fuzzer, you must run "./fuzz.sh" in another process and "python3.10 client.py 1" on another. The client python script waits for the fuzzing process to write to another file and then the client mutates it inside python. I want the AI agent to also be able to read and write files and modify them etc etc.. I also want it to try more creative methods such as modifying the custom mutator and stuff. I also want it to be optimized such that it always sends the current list of files in current directory and maybe the contents of some of them in the message such that it uses less chatgpt queries. I also want the python script to conversly be able to execute many commands such that it limits the number of queries chatgpt must send. I think you know what I mean
+and to run the fuzzer, you must run the fuzzer in another process and "python3.10 client.py 1" on another. The client python script waits for the fuzzing process to write to another file and then the client mutates it inside python. I want the AI agent to also be able to read and write files and modify them etc etc.. I also want it to try more creative methods such as modifying the custom mutator and stuff. I also want it to be optimized such that it always sends the current list of files in current directory and maybe the contents of some of them in the message such that it uses less chatgpt queries. I also want the python script to conversly be able to execute many commands such that it limits the number of queries chatgpt must send. I think you know what I mean
 
 Basically, you must run the fuzz.sh and the client.py programs in other processes and also to run the client you MUST use python3.10 , not just "python3" since python3.10 has the required pikepdf package. I encourage you to try to be creative. You can download the source code of pdfium and observe it as you wish, but do NOT delete the fuzzer file or the custom mutator. Remember to keep backups, but not too frequently.
 
@@ -304,7 +303,7 @@ Please use creativity and whatever methods you see fit. This is just guidance.
 
 !!!!!! Remember to verify your findings after you find a potential BUG !!!!!!
 
-The current issue is that if you run ./fuzz.sh , then it runs out of memory for some reason. This is probably because the larger pdf files leak memory somewhere. I am not interested in oom bugs, but only in memory corruption.
+The current issue is that if you run the fuzzer , then it runs out of memory for some reason. This is probably because the larger pdf files leak memory somewhere. I am not interested in oom bugs, but only in memory corruption.
 
 Good luck on your journey!
 
@@ -314,29 +313,16 @@ The output of each of the commands are limited to first 10k chars. Please keep t
 
 Remember to check the contents of files before executing them!!!!!!!!!!!
 
-For example the fuzz.sh file has the following content: ```
-(venv) sontapaa_jokulainen@theimage-new:~$ cat pdf_fuzz/fuzz.sh 
-#!/bin/sh
-
-cp /home/sontapaa_jokulainen/new_pdf_mutator/pdfium/newmutator.py ./mutator.py
-cp /home/sontapaa_jokulainen/new_pdf_mutator/pdfium/*.py .
-cp /home/sontapaa_jokulainen/new_pdf_mutator/resources.pkl .
-export ASAN_OPTIONS=alloc_dealloc_mismatch=0:allocator_may_return_null=1:halt_on_error=0
-# pdf_corpus
-# ASAN_OPTIONS=alloc_dealloc_mismatch=0:allocator_may_return_null=1:halt_on_error=1:abort_on_error=1 SLOT_INDEX=1 LIBFUZZER_PYTHON_MODULE=daemon PYTHONPATH=. ./pdfium_fuzzer -fork=1 -ignore_crashes=1 -jobs=1 -dict=pdfium_fuzzer.dict -timeout=10 -rss_limit_mb=0 ./smallcorpus/ # ./pdf_corpus/
-
-
-ASAN_OPTIONS=alloc_dealloc_mismatch=0:allocator_may_return_null=1:halt_on_error=1:abort_on_error=1 SLOT_INDEX=1 LIBFUZZER_PYTHON_MODULE=daemon PYTHONPATH=. ./pdfium_fuzzer -fork=1 -ignore_crashes=1 -jobs=16 -dict=pdfium_fuzzer.dict -timeout=10 -rss_limit_mb=2000 ./pdf_corpus/
-
-
-# ASAN_OPTIONS=alloc_dealloc_mismatch=0:allocator_may_return_null=1:halt_on_error=1:abort_on_error=1 LIBFUZZER_PYTHON_MODULE=daemon PYTHONPATH=. ./pdfium_fuzzer -dict=pdfium_fuzzer.dict -timeout=10 -rss_limit_mb=0 ./smallcorpus/ # ./pdf_corpus/
-```
-
 DO NOT ASSUME ANYTHING!!!!
 
 VERIFY BEHAVIOUR OF EACH FILE AND SCRIPT BEFORE USING THEM!!!!!!!!
 
 In addition to the current state, you will also be served a history of the last couple of commands which you have executed as further context
+
+### INFO ON THE CUSTOM MUTATOR
+
+The custom mutator works by using the pdfium library to manipulate pdf files by using objects instead of just simple bitflipping. It fallbacks to bit and byte flipping when it fails to parse the to-be-mutated pdf file though.
+
 """
 
 # -------------------- GPT CALL ----------------------
